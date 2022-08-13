@@ -69,3 +69,53 @@ df_mean_line = pd.merge(df_ts_mean, df_pref_mean, on='集計年')
 df_mean_line = df_mean_line[['集計年', '全国一人当たり賃金（万円）','一人当たり賃金（万円）']]
 df_mean_line = df_mean_line.set_index('集計年')
 st.line_chart(df_mean_line)
+
+### 年齢階級別の全国一人当たり平均賃金（万円）
+st.header('■年齢階級別の全国一人当たり平均賃金（万円）')
+
+df_mean_bubble = df_jp_ind[df_jp_ind['年齢'] != '年齢計']
+
+fig = px.scatter(df_mean_bubble,
+    x="一人当たり賃金（万円）",
+    y="年間賞与その他特別給与額（万円）",
+    range_x=[150,700],
+    range_y=[0,150],
+    size="所定内給与額（万円）",
+    size_max=38,
+    color="年齢",
+    animation_frame="集計年",
+    animation_group="年齢")
+
+st.plotly_chart(fig)
+
+### 産業別の賃金推移
+st.header('■産業別の賃金推移')
+
+year_list = df_jp_category["集計年"].unique()
+option_year = st.selectbox(
+    '集計年',
+    (year_list),
+)
+
+wage_list = ['一人当たり賃金（万円）', '所定内給与額（万円）','年間賞与その他特別給与額（万円）']
+option_wage = st.selectbox(
+    '賃金の種類',
+    (wage_list)
+)
+
+df_mean_categ = df_jp_category[df_jp_category["集計年"] == option_year]
+
+max_x = df_mean_categ[option_wage].max() + 50
+
+fig = px.bar(df_mean_categ,
+    x=option_wage,
+    y="産業大分類名",
+    color="産業大分類名",
+    animation_frame="年齢",
+    range_x=[9,max_x],
+    orientation="h",
+    width=800,
+    height=500
+    )
+
+st.plotly_chart(fig)
